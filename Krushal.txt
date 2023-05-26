@@ -1,0 +1,50 @@
+def find_parent(parent, i):
+    if parent[i] != i:
+        parent[i] = find_parent(parent, parent[i])
+    return parent[i]
+
+def union(parent, rank, x, y):
+    root_x = find_parent(parent, x)
+    root_y = find_parent(parent, y)
+    if rank[root_x] < rank[root_y]:
+        parent[root_x] = root_y
+    elif rank[root_x] > rank[root_y]:
+        parent[root_y] = root_x
+    else:
+        parent[root_y] = root_x
+        rank[root_x] += 1
+
+def kruskal(graph):
+    num_vertices = len(graph)
+    vertices = list(range(num_vertices))
+    edges = []
+
+    for i in range(num_vertices):
+        for j in range(i + 1, num_vertices):
+            if graph[i][j] != 0:
+                edges.append((i, j, graph[i][j]))
+
+    minimum_spanning_tree = set()
+    parent = {v: v for v in vertices}
+    rank = {v: 0 for v in vertices}
+    sorted_edges = sorted(edges, key=lambda x: x[2])
+
+    for edge in sorted_edges:
+        u, v, weight = edge
+        root_u = find_parent(parent, u)
+        root_v = find_parent(parent, v)
+        if root_u != root_v:
+            minimum_spanning_tree.add(edge)
+            union(parent, rank, root_u, root_v)
+
+    return minimum_spanning_tree
+
+graph = [
+    [0, 19, 5, 0, 0],
+    [19, 0, 5, 9, 2],
+    [5, 5, 0, 1, 6],
+    [0, 9, 1, 0, 1],
+    [0, 2, 6, 1, 0]
+]
+
+kruskal(graph)

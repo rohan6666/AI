@@ -1,0 +1,74 @@
+class NQueens:
+    def __init__(self, n):
+        self.n = n
+        self.board = [[0] * n for _ in range(n)]
+        self.solution = []
+
+    def is_safe(self, row, col):
+        # Check if the current position is safe for a queen
+        for i in range(col):
+            if self.board[row][i] == 1:
+                return False
+
+        for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
+            if self.board[i][j] == 1:
+                return False
+
+        for i, j in zip(range(row, self.n, 1), range(col, -1, -1)):
+            if self.board[i][j] == 1:
+                return False
+
+        return True
+
+    def solve(self):
+        def backtrack(col):
+            if col == self.n:
+                # Solution found, store the current configuration
+                self.solution.append([row[:] for row in self.board])
+                return
+
+            for row in range(self.n):
+                if self.is_safe(row, col):
+                    self.board[row][col] = 1
+                    backtrack(col + 1)
+                    self.board[row][col] = 0
+
+        def branch_and_bound(col):
+            if col == self.n:
+                # Solution found, store the current configuration
+                self.solution.append([row[:] for row in self.board])
+                return
+
+            for row in range(self.n):
+                if self.is_safe(row, col):
+                    self.board[row][col] = 1
+
+                    # Use a heuristic to check if it's worth exploring this branch
+                    if self.heuristic(col):
+                        branch_and_bound(col + 1)
+
+                    self.board[row][col] = 0
+
+        backtrack(0)  # Use backtracking to find all solutions
+        # branch_and_bound(0)  # Use branch and bound to find optimal solution
+
+        return self.solution
+
+    def heuristic(self, col):
+        # This is a simple heuristic to determine if a branch should be explored
+        # The heuristic checks if there are any conflicts in the next column
+        for row in range(self.n):
+            if self.is_safe(row, col + 1):
+                return True
+        return False
+
+
+# Example usage
+n = 4
+queens = NQueens(n)
+solutions = queens.solve()
+print(f"Found {len(solutions)} solution(s) for {n}-queens problem:")
+for solution in solutions:
+    for row in solution:
+        print(row)
+    print()

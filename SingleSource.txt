@@ -1,0 +1,61 @@
+def Graph(graph, start_node):
+    shortest_dist = {}
+    shortest_dist[start_node] = 0
+    previous_nodes = {}
+    visited = set()
+    current_node = start_node
+
+    while current_node is not None:
+        visited.add(current_node)
+
+        for neighbor, weight in graph[current_node]:
+            distance = shortest_dist[current_node] + weight
+
+            if distance < shortest_dist.get(neighbor, float('inf')):
+                shortest_dist[neighbor] = distance
+                previous_nodes[neighbor] = current_node
+
+        current_node = None
+        min_dist = float('inf')
+
+        for node in graph:
+            if node not in visited and shortest_dist.get(node, float('inf')) < min_dist:
+                min_dist = shortest_dist[node]
+                current_node = node
+        
+    path = []
+    target_node = start_node
+    while target_node is not None:
+        path.insert(0, target_node)
+        target_node = previous_nodes.get(target_node)
+
+    return shortest_dist, previous_nodes, path
+
+
+graph = {
+    '5' : [('3', 9), ('7', 3)],
+    '3' : [('2', 5), ('4', 2)],
+    '7' : [('8', 4)],
+    '2' : [],
+    '4' : [('8', 2)],
+    '8' : []
+}
+
+start_node = '5'
+shortest_dist, previous_nodes, path = Graph(graph, start_node)
+
+for node, dist in shortest_dist.items():
+    print(f"Shortest distance from {start_node} to {node}: {dist}")
+
+target_node = '8'
+path = []
+
+while target_node != start_node:
+    path.insert(0, target_node)
+    target_node = previous_nodes[target_node]
+
+path.insert(0, start_node)
+
+path_str = ' -> '.join(node for node in path)
+
+print(f"\n\nShortest path from {start_node} to {target_node}: {path_str}")

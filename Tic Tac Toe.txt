@@ -1,0 +1,74 @@
+def Complete(board):
+    return Winner(board) or IsDraw(board)
+    
+def Winner(board):
+    for i in range(3):
+        if board[0][i] == board[1][i] == board[2][i] != "":
+            return board[0][i]
+        if board[i][0] == board[i][1] == board[i][2] != "":
+            return board[i][0]
+    if board[0][0] == board[1][1] == board[2][2] != "":
+        return board[0][0]
+    if board[0][2] == board[1][1] == board[2][0] != "":
+        return board[0][2]
+    return None
+
+def VaidMoves(board):
+    moves = []
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == "":
+                moves.append((i, j))
+    return moves
+
+def IsDraw(board):
+    return len(VaidMoves(board)) == 0
+
+def MakeMove(board, move, player):
+    i, j = move
+    newBoard = []
+    for row in board:
+        newRow = row[:]
+        newBoard.append(newRow)
+    newBoard[i][j] = player
+    return newBoard
+
+def Cost(board):
+    win = Winner(board)
+    if win == "X":
+        return 1
+    elif win == "O":
+        return -1
+    else:
+        return 0
+
+def AStar(board, player):
+    if Complete(board):
+        return []
+    validMoves = VaidMoves(board)
+    score = []
+    for move in validMoves:
+        newBoard = MakeMove(board, move, player)
+        cost = Cost(newBoard)
+        score.append((move, cost))
+    score.sort(key = lambda x: x[1], reverse = True)
+    
+    for move, _ in score:
+        newBoard = MakeMove(board, move, player)
+        nextPlayer = "O" if player == "X" else "X"
+        optimalMove = AStar(newBoard, nextPlayer)
+        if optimalMove is not None:
+            return [move] + optimalMove
+    return None
+
+def PrintMove(optimalMove, player):
+    for i, move in enumerate(optimalMove, start = 1):
+        print("Move : ", i, " Player ", player, " moves to position ", move[0], move[1])
+        
+
+
+initBorad = [ ["", "", ""], ["", "", ""], ["", "", ""] ]
+initPlayer = "X"
+
+moves = AStar(initBorad, initPlayer)
+PrintMove(moves, initPlayer)
